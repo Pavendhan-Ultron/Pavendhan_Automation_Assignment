@@ -1,3 +1,4 @@
+
 import { test, expect } from '@playwright/test';
 import { ApiClient } from '../../Utils/apiClient';
 
@@ -5,7 +6,6 @@ test.describe('Simple Books API Tests', () => {
 
     let apiClient: ApiClient;
     let token: string;
-    let orderId: string;
 
     test.beforeAll(async ({ playwright }) => {
 
@@ -32,6 +32,8 @@ test.describe('Simple Books API Tests', () => {
         console.log('Token generated successfully');
     });
 
+
+    // GET - Get all books
     test('GET - Get all books', async () => {
 
         const response = await apiClient.getBooks();
@@ -41,13 +43,13 @@ test.describe('Simple Books API Tests', () => {
         const books = await response.json();
 
         expect(Array.isArray(books)).toBeTruthy();
-
         expect(books.length).toBeGreaterThan(0);
 
         console.log('Books:', books);
     });
 
 
+    // GET - Get book by ID
     test('GET - Get book by ID', async () => {
 
         const response = await apiClient.getBook(1);
@@ -62,56 +64,59 @@ test.describe('Simple Books API Tests', () => {
     });
 
 
-    test('POST - Create an order', async () => {
+    // POST → PATCH → DELETE
+    test('Order lifecycle - POST → PATCH → DELETE', async () => {
 
-        const response = await apiClient.createOrder(
+        // -------------------------
+        // POST - Create an order
+        // -------------------------
+
+        const createResponse = await apiClient.createOrder(
             token,
             1,
             'Pavendhan'
         );
 
-        expect(response.status()).toBe(201);
+        expect(createResponse.status()).toBe(401);
 
-        const responseBody = await response.json();
+        const createBody = await createResponse.json();
 
-        expect(responseBody).toHaveProperty('created');
+        expect(createBody.created).toBe(true);
+        expect(createBody).toHaveProperty('orderId');
 
-        expect(responseBody.created).toBe(true);
+        const orderId = createBody.orderId;
 
-        orderId = responseBody.orderId;
-
-        console.log('Order ID:', orderId);
-    });
+        console.log('Order created:', orderId);
 
 
-    test('PATCH - Update an order', async () => {
+        // -------------------------
+        // PATCH - Update the order
+        // -------------------------
 
-        test.skip(!orderId, 'Order ID is not available');
-
-        const response = await apiClient.updateOrder(
+        const updateResponse = await apiClient.updateOrder(
             token,
             orderId,
             'Pavendhan Updated'
         );
 
-        expect(response.status()).toBe(204);
+        expect(updateResponse.status()).toBe(204);
 
         console.log('Order updated successfully');
-    });
 
 
-    test('DELETE - Delete an order', async () => {
+        // -------------------------
+        // DELETE - Delete the order
+        // -------------------------
 
-        test.skip(!orderId, 'Order ID is not available');
-
-        const response = await apiClient.deleteOrder(
+        const deleteResponse = await apiClient.deleteOrder(
             token,
             orderId
         );
 
-        expect(response.status()).toBe(204);
+        expect(deleteResponse.status()).toBe(204);
 
         console.log('Order deleted successfully');
     });
 
 });
+

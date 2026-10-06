@@ -30,7 +30,7 @@ export default defineConfig({
   //reporter: 'html',
   reporter: [
     ['list'],
-    ['./reporters/extentReporter.ts']
+    ['./Reporters/extentReporter.ts']
 ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
